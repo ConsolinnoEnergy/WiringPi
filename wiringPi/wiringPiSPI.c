@@ -41,6 +41,12 @@
 
 static const char       *spiDev0  = "/dev/spidev0.0" ;
 static const char       *spiDev1  = "/dev/spidev0.1" ;
+static const char       *spiDev2  = "/dev/spidev0.2" ;
+static const char       *spiDev3  = "/dev/spidev0.3" ;
+static const char       *spiDev4  = "/dev/spidev0.4" ;
+static const char       *spiDev5  = "/dev/spidev0.5" ;
+static const char       *spiDev6  = "/dev/spidev0.6" ;
+static const char       *spiDev7  = "/dev/spidev0.7" ;
 static const uint8_t     spiBPW   = 8 ;
 static const uint16_t    spiDelay = 0 ;
 
@@ -56,7 +62,7 @@ static int         spiFds [2] ;
 
 int wiringPiSPIGetFd (int channel)
 {
-  return spiFds [channel & 1] ;
+  return spiFds [channel & 7] ;
 }
 
 
@@ -73,7 +79,7 @@ int wiringPiSPIDataRW (int channel, unsigned char *data, int len)
 {
   struct spi_ioc_transfer spi ;
 
-  channel &= 1 ;
+  channel &= 7 ;
 
 // Mentioned in spidev.h but not used in the original kernel documentation
 //	test program )-:
@@ -90,6 +96,40 @@ int wiringPiSPIDataRW (int channel, unsigned char *data, int len)
   return ioctl (spiFds [channel], SPI_IOC_MESSAGE(1), &spi) ;
 }
 
+/*
+ * Map int channel to spiDev_N
+ */
+int mapChannelNumberToPointer (int channel)
+{
+  switch(channel){
+    case 0:
+      return spiDev0;
+      break;
+    case 1:
+      return spiDev1;
+      break;
+    case 2:
+      return spiDev2;
+      break;
+    case 3:
+      return spiDev3;
+      break;
+    case 4:
+      return spiDev4;
+      break;
+    case 5:
+      return spiDev5;
+      break;
+    case 6:
+      return spiDev6;
+      break;
+    case 7:
+      return spiDev7;
+      break;
+    default:
+      return spiDev0;
+  }
+}
 
 /*
  * wiringPiSPISetupMode:
@@ -102,9 +142,9 @@ int wiringPiSPISetupMode (int channel, int speed, int mode)
   int fd ;
 
   mode    &= 3 ;	// Mode is 0, 1, 2 or 3
-  channel &= 1 ;	// Channel is 0 or 1
+  channel &= 7 ;	// Channel is 0...7
 
-  if ((fd = open (channel == 0 ? spiDev0 : spiDev1, O_RDWR)) < 0)
+  if ((fd = open (mapChannelNumberToPointer(channel), O_RDWR)) < 0)
     return wiringPiFailure (WPI_ALMOST, "Unable to open SPI device: %s\n", strerror (errno)) ;
 
   spiSpeeds [channel] = speed ;
@@ -114,7 +154,7 @@ int wiringPiSPISetupMode (int channel, int speed, int mode)
 
   if (ioctl (fd, SPI_IOC_WR_MODE, &mode)            < 0)
     return wiringPiFailure (WPI_ALMOST, "SPI Mode Change failure: %s\n", strerror (errno)) ;
-  
+
   if (ioctl (fd, SPI_IOC_WR_BITS_PER_WORD, &spiBPW) < 0)
     return wiringPiFailure (WPI_ALMOST, "SPI BPW Change failure: %s\n", strerror (errno)) ;
 
