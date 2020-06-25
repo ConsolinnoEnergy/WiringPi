@@ -47,6 +47,7 @@ static const char       *spiDev4  = "/dev/spidev0.4" ;
 static const char       *spiDev5  = "/dev/spidev0.5" ;
 static const char       *spiDev6  = "/dev/spidev0.6" ;
 static const char       *spiDev7  = "/dev/spidev0.7" ;
+static const char       *spiDev8  = "/dev/spidev0.8" ;
 static const uint8_t     spiBPW   = 8 ;
 static const uint16_t    spiDelay = 0 ;
 
@@ -125,6 +126,9 @@ int mapChannelNumberToPointer (int channel)
       break;
     case 7:
       return spiDev7;
+      break;
+    case 8:
+      return spiDev8;
       break;
     default:
       return spiDev0;
