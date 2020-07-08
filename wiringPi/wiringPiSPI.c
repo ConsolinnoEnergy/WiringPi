@@ -63,7 +63,7 @@ static int         spiFds [2] ;
 
 int wiringPiSPIGetFd (int channel)
 {
-  return spiFds [channel & 8] ;
+  return spiFds [channel & 0xf] ;
 }
 
 
@@ -80,7 +80,7 @@ int wiringPiSPIDataRW (int channel, unsigned char *data, int len)
 {
   struct spi_ioc_transfer spi ;
 
-  channel &= 8 ;
+  channel &= 0xf ;
 
 // Mentioned in spidev.h but not used in the original kernel documentation
 //	test program )-:
@@ -146,7 +146,7 @@ int wiringPiSPISetupMode (int channel, int speed, int mode)
   int fd ;
 
   mode    &= 3 ;	// Mode is 0, 1, 2 or 3
-  channel &= 8 ;	// Channel is 0...7
+  channel &= 0xf ;	// Channel is 0...8
 
   if ((fd = open (mapChannelNumberToPointer(channel), O_RDWR)) < 0)
     return wiringPiFailure (WPI_ALMOST, "Unable to open SPI device: %s\n", strerror (errno)) ;
